@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class ShowMoreTextView extends RelativeLayout {
 
-    private test mContent;
+    private CustomBaseLineTextView mContent;
     private TextView mBtnShowMore;
     private TextView mBtnShowLess;
     private float lineSpace;
@@ -79,7 +79,7 @@ public class ShowMoreTextView extends RelativeLayout {
     };
 
     private void initTextView(Context context) {
-        mContent = new test(context);
+        mContent = new CustomBaseLineTextView(context);
         RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mContent.setLayoutParams(params);
         lineSpace = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, context.getResources().getDisplayMetrics());

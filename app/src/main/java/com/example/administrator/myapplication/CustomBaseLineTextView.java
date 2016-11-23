@@ -9,16 +9,16 @@ import android.widget.TextView;
  * Created by Administrator on 2016/11/22.
  */
 
-public class test extends TextView {
-    public test(Context context) {
+public class CustomBaseLineTextView extends TextView {
+    public CustomBaseLineTextView(Context context) {
         super(context);
     }
 
-    public test(Context context, AttributeSet attrs) {
+    public CustomBaseLineTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public test(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CustomBaseLineTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
