@@ -2,9 +2,11 @@ package com.example.administrator.myapplication;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -95,8 +97,16 @@ public class ShowMoreTextView extends RelativeLayout {
         @Override
         public void onClick(View view) {
             mContent.setMaxLines(Integer.MAX_VALUE);
-            // TODO 在这里，判断一下，使用哪个LayoutParams
-            mBtnShowLess.setLayoutParams(paramsBelow);
+            mContent.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (isNeedNewLine()) {
+                        mBtnShowLess.setLayoutParams(paramsBelow);
+                    } else {
+                        mBtnShowLess.setLayoutParams(paramsAlignBottom);
+                    }
+                }
+            });
             mBtnShowLess.setVisibility(VISIBLE);
             mBtnShowMore.setVisibility(GONE);
         }
@@ -110,4 +120,25 @@ public class ShowMoreTextView extends RelativeLayout {
             mBtnShowMore.setVisibility(VISIBLE);
         }
     };
+
+    /**
+     * 判断TextView最后一行剩余的空缺
+     * 是否满三个字符.
+     *
+     * @return true 不满三个字符, false 超过三个字符
+     */
+    private boolean isNeedNewLine() {
+        if (mContent == null || mContent.getLayout().getLineCount() < 1) {
+            return true;
+        }
+        Layout layout = mContent.getLayout();
+        int lineCount = layout.getLineCount();
+        int FirstLineCount = layout.getLineEnd(0) - layout.getLineStart(0);
+        int LastLineCount = layout.getLineEnd(lineCount - 1) - layout.getLineStart(lineCount - 1);
+        if (FirstLineCount - LastLineCount > 3) {
+            return false;
+        }
+
+        return true;
+    }
 }
