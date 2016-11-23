@@ -24,6 +24,7 @@ public class ShowMoreTextView extends RelativeLayout {
     private float lineSpace;
     private RelativeLayout.LayoutParams paramsAlignBottom;
     private RelativeLayout.LayoutParams paramsBelow;
+    private String mContentText = ""; // textview的主显示内容
 
     public ShowMoreTextView(Context context) {
         super(context);
@@ -50,9 +51,32 @@ public class ShowMoreTextView extends RelativeLayout {
     }
 
     public void setText(String text) {
-        mContent.setText(text);
+        this.mContentText = text;
+        mContent.setText(mContentText);
+        mContent.post(mShrinkRunnable);
     }
 
+    /**
+     * 当TextView是收缩状态时，是否需要显示省略号和"更多"按钮
+     */
+    private Runnable mShrinkRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mContent.getLayout().getLineCount() == 0) {
+                mBtnShowMore.setVisibility(GONE);
+                return;
+            }
+            int FirstLineCount = mContent.getLayout().getLineEnd(0) - mContent.getLayout().getLineStart(0);
+            if (mContent.length() > FirstLineCount) {
+                // 需要省略号，显示更多
+                String subString = mContentText.substring(0, mContent.getLayout().getLineEnd(0) - 3) + "...";
+                mContent.setText(subString);
+                mBtnShowMore.setVisibility(VISIBLE);
+            } else {
+                mBtnShowMore.setVisibility(GONE);
+            }
+        }
+    };
 
     private void initTextView(Context context) {
         mContent = new test(context);
@@ -107,6 +131,7 @@ public class ShowMoreTextView extends RelativeLayout {
                     }
                 }
             });
+            mContent.setText(mContentText);
             mBtnShowLess.setVisibility(VISIBLE);
             mBtnShowMore.setVisibility(GONE);
         }
@@ -116,6 +141,7 @@ public class ShowMoreTextView extends RelativeLayout {
         @Override
         public void onClick(View view) {
             mContent.setMaxLines(1);
+            mContent.post(mShrinkRunnable);
             mBtnShowLess.setVisibility(GONE);
             mBtnShowMore.setVisibility(VISIBLE);
         }
