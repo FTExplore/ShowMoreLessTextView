@@ -6,14 +6,14 @@ import android.text.Layout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
- * Created by Administrator on 2016/11/22.
+ * 项目需要，封装一个
+ * Created by zhanghongzuo on 2016/11/22.
  */
 
 public class ShowMoreTextView extends RelativeLayout {
