@@ -28,8 +28,6 @@ public class ShowMoreTextView extends RelativeLayout {
     private RelativeLayout.LayoutParams paramsAlignBottom;
     private RelativeLayout.LayoutParams paramsBelow;
     private String mContentText = ""; // textview的主显示内容
-    private Pattern HanyuPattern;
-    private final String hanziRules = "[\u4e00-\u9fa5]+";
 
     public ShowMoreTextView(Context context) {
         super(context);
@@ -47,7 +45,6 @@ public class ShowMoreTextView extends RelativeLayout {
     }
 
     private void init(Context context) {
-        HanyuPattern = Pattern.compile(hanziRules);
         initTextView(context);
         initShowMore(context);
         initShowLess(context);
@@ -70,45 +67,14 @@ public class ShowMoreTextView extends RelativeLayout {
         public void run() {
             if (mContent.getLayout().getLineCount() == 0) {
                 mBtnShowMore.setVisibility(GONE);
-                return;
-            }
-            int FirstLineCount = mContent.getLayout().getLineEnd(0) - mContent.getLayout().getLineStart(0);
-            Log.e("ZHZ", FirstLineCount + "");
-            if (mContent.length() > FirstLineCount) {
-                // 需要省略号，显示更多,注意，这里要判断中文英文的情况，一个中文相当于两个英文
-                // 所以这个地方，我们默认想行尾空出三个中文字符，即6个英文字符
-                String FirstLine = mContentText.substring(0, mContent.getLayout().getLineEnd(0));
-                String subString = mContentText.substring(0, calIndex(FirstLine)) + "...";
-                mContent.setText(subString);
-                mBtnShowMore.setVisibility(VISIBLE);
-            } else {
-                mBtnShowMore.setVisibility(GONE);
             }
         }
     };
 
-    private int calIndex(String firstLine) {
-        int target = 6; // 目标是6个英文字母的位置
-        int index = 0;
-        for (int i = firstLine.length() - 1; i > 0; i--) {
-            char temp = firstLine.charAt(i);
-            if (HanyuPattern.matcher(String.valueOf(temp)).matches()) {
-                index += 2;
-            } else {
-                index += 1;
-            }
-
-            if (index >= target) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
     private void initTextView(Context context) {
         mContent = new CustomBaseLineTextView(context);
         RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(LEFT_OF,R.id.ShowMoreBtn);
         mContent.setLayoutParams(params);
         lineSpace = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, context.getResources().getDisplayMetrics());
         mContent.setLineSpacing(lineSpace, 1.0f);
@@ -124,6 +90,7 @@ public class ShowMoreTextView extends RelativeLayout {
         RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         mBtnShowMore.setLayoutParams(params);
+        mBtnShowMore.setId(R.id.ShowMoreBtn);
         mBtnShowMore.setText("更多");
         mBtnShowMore.setOnClickListener(mShorMore);
     }
