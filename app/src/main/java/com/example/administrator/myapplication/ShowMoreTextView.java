@@ -5,11 +5,14 @@ import android.graphics.Color;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.util.regex.Pattern;
 
 /**
  * 项目需要，封装一个
@@ -25,6 +28,8 @@ public class ShowMoreTextView extends RelativeLayout {
     private RelativeLayout.LayoutParams paramsAlignBottom;
     private RelativeLayout.LayoutParams paramsBelow;
     private String mContentText = ""; // textview的主显示内容
+    private Pattern HanyuPattern;
+    private final String hanziRules = "[\u4e00-\u9fa5]+";
 
     public ShowMoreTextView(Context context) {
         super(context);
@@ -42,6 +47,7 @@ public class ShowMoreTextView extends RelativeLayout {
     }
 
     private void init(Context context) {
+        HanyuPattern = Pattern.compile(hanziRules);
         initTextView(context);
         initShowMore(context);
         initShowLess(context);
@@ -67,9 +73,12 @@ public class ShowMoreTextView extends RelativeLayout {
                 return;
             }
             int FirstLineCount = mContent.getLayout().getLineEnd(0) - mContent.getLayout().getLineStart(0);
+            Log.e("ZHZ", FirstLineCount + "");
             if (mContent.length() > FirstLineCount) {
-                // 需要省略号，显示更多
-                String subString = mContentText.substring(0, mContent.getLayout().getLineEnd(0) - 3) + "...";
+                // 需要省略号，显示更多,注意，这里要判断中文英文的情况，一个中文相当于两个英文
+                // 所以这个地方，我们默认想行尾空出三个中文字符，即6个英文字符
+                String FirstLine = mContentText.substring(0, mContent.getLayout().getLineEnd(0));
+                String subString = mContentText.substring(0, calIndex(FirstLine)) + "...";
                 mContent.setText(subString);
                 mBtnShowMore.setVisibility(VISIBLE);
             } else {
@@ -77,6 +86,25 @@ public class ShowMoreTextView extends RelativeLayout {
             }
         }
     };
+
+    private int calIndex(String firstLine) {
+        int target = 6; // 目标是6个英文字母的位置
+        int index = 0;
+        for (int i = firstLine.length() - 1; i > 0; i--) {
+            char temp = firstLine.charAt(i);
+            if (HanyuPattern.matcher(String.valueOf(temp)).matches()) {
+                index += 2;
+            } else {
+                index += 1;
+            }
+
+            if (index >= target) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
 
     private void initTextView(Context context) {
         mContent = new CustomBaseLineTextView(context);
