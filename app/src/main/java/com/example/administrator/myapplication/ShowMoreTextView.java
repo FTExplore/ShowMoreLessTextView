@@ -1,6 +1,7 @@
 package com.example.administrator.myapplication;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.Layout;
 import android.text.TextUtils;
@@ -29,18 +30,36 @@ public class ShowMoreTextView extends RelativeLayout {
     private RelativeLayout.LayoutParams paramsBelow;
     private String mContentText = ""; // textview的主显示内容
 
+    private int MaxLine = 1; // 默认是1
+
     public ShowMoreTextView(Context context) {
-        super(context);
-        init(context);
+        this(context, null);
     }
 
     public ShowMoreTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+        this(context, attrs, 0);
     }
 
     public ShowMoreTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initAttr(context, attrs);
+    }
+
+    /**
+     * 根据自定义属性设置
+     */
+    private void initAttr(Context context, AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray a = context.getTheme().obtainStyledAttributes(
+                    attrs,
+                    R.styleable.ShowMoreTextView,
+                    0, 0);
+            int color = a.getColor(R.styleable.ShowMoreTextView_TextColor, Color.parseColor("#333333"));
+            if (mContent != null) {
+                mContent.setTextColor(color);
+            }
+            MaxLine = a.getInt(R.styleable.ShowMoreTextView_ShrinkMaxLine, 1);
+        }
         init(context);
     }
 
@@ -67,18 +86,54 @@ public class ShowMoreTextView extends RelativeLayout {
         public void run() {
             if (mContent.getLayout().getLineCount() == 0) {
                 mBtnShowMore.setVisibility(GONE);
+                return;
+            }
+            int FirstLineCount = mContent.getLayout().getLineEnd(0) - mContent.getLayout().getLineStart(0);
+            if (mContentText.length() > FirstLineCount) {
+                mBtnShowMore.setVisibility(VISIBLE);
+            } else {
+                mBtnShowMore.setVisibility(GONE);
+            }
+
+            // 考虑到MaxLine 不等于1 的情况，即当默认显示行数不是一行的时候，最后一行要留出一部分空间
+            if (MaxLine != 1){
+                int LastCharIndex = mContent.getLayout().getLineEnd(mContent.getLineCount() - 1);
+                String shrinkTxt = mContentText.substring(0,LastCharIndex);
+                String result = shrinkTxt.substring(0,calLastIndex(shrinkTxt));
+                mContent.setText(result+"...");
             }
         }
     };
 
+    private int calLastIndex(String line) {
+        String f = "[\u4e00-\u9fa5]+"; // 判断是否是中文
+        Pattern HanyuPattern = Pattern.compile(f);
+        int target = 6; // 目标是6个英文字母的位置
+        int index = 0;
+        for (int i = line.length() - 1; i > 0; i--) {
+            char temp = line.charAt(i);
+            if (HanyuPattern.matcher(String.valueOf(temp)).matches()) {
+                index += 2;
+            } else {
+                index += 1;
+            }
+            if (index >= target) {
+                return i;
+            }
+        }
+        return 3;
+    }
+
     private void initTextView(Context context) {
         mContent = new CustomBaseLineTextView(context);
         RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(LEFT_OF,R.id.ShowMoreBtn);
+        if (MaxLine == 1){
+            params.addRule(LEFT_OF, R.id.ShowMoreBtn);
+        }
         mContent.setLayoutParams(params);
         lineSpace = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, context.getResources().getDisplayMetrics());
         mContent.setLineSpacing(lineSpace, 1.0f);
-        mContent.setMaxLines(1);
+        mContent.setMaxLines(MaxLine);
         mContent.setEllipsize(TextUtils.TruncateAt.END);
         mContent.setId(R.id.ShowMoreContent);
     }
@@ -88,6 +143,7 @@ public class ShowMoreTextView extends RelativeLayout {
         mBtnShowMore.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         mBtnShowMore.setTextColor(Color.parseColor("#69BE87"));
         RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(ALIGN_BASELINE, R.id.ShowMoreContent);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         mBtnShowMore.setLayoutParams(params);
         mBtnShowMore.setId(R.id.ShowMoreBtn);
@@ -135,7 +191,7 @@ public class ShowMoreTextView extends RelativeLayout {
     private OnClickListener mShowLess = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            mContent.setMaxLines(1);
+            mContent.setMaxLines(MaxLine);
             mContent.post(mShrinkRunnable);
             mBtnShowLess.setVisibility(GONE);
             mBtnShowMore.setVisibility(VISIBLE);
