@@ -97,7 +97,8 @@ public class ShowMoreTextView extends RelativeLayout {
 
             // 考虑到MaxLine 不等于1 的情况，即当默认显示行数不是一行的时候，最后一行要留出一部分空间
             // TODO 20161125 还要判断最后一行是否需要省略号，即最后一行的空缺是否已经足够6个英文字母
-            if (MaxLine != 1){
+            if (MaxLine != 1 && !TextUtils.isEmpty(mContentText)){
+
                 int LastCharIndex = mContent.getLayout().getLineEnd(mContent.getLineCount() - 1);
                 String shrinkTxt = mContentText.substring(0,LastCharIndex);
                 String result = shrinkTxt.substring(0,calLastIndex(shrinkTxt));
