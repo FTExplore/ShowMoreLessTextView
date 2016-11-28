@@ -102,7 +102,7 @@ public class ShowMoreTextView extends RelativeLayout {
                 String shrinkTxt = mContentText.substring(0,LastCharIndex);
                 String result = shrinkTxt.substring(0,calLastIndex(shrinkTxt));
                 mContent.setText(result+"...");
-            }else{
+            }else if (MaxLine != 1){
                 mBtnShowMore.setVisibility(GONE);
             }
         }
