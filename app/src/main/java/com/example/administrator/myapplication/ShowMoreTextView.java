@@ -3,7 +3,6 @@ package com.example.administrator.myapplication;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.text.Layout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -105,7 +104,7 @@ public class ShowMoreTextView extends RelativeLayout {
                 return;
             }
 
-            if (TextUtils.isEmpty(mContentText)){
+            if (TextUtils.isEmpty(mContentText)) {
                 mBtnShowMore.setVisibility(GONE);
                 return;
             }
@@ -113,13 +112,13 @@ public class ShowMoreTextView extends RelativeLayout {
 
             int firstCharIndex = mContent.getLayout().getLineStart(MaxLine - 1);
             int LastCharIndex = mContent.getLayout().getLineEnd(MaxLine - 1);
-            String lastline = mContentText.substring(firstCharIndex,LastCharIndex);
+            String lastline = mContentText.substring(firstCharIndex, LastCharIndex);
 
             float totalWidth = mContent.getWidth();
             float lastLineWidth = textPaint.measureText(lastline);
             float maxLineWidh = totalWidth - LengthEll - LengthShowMore;
 
-            if (lastLineWidth > maxLineWidh){
+            if (lastLineWidth > maxLineWidh) {
                 // 最后一行需要裁剪
                 int index = 0;
                 StringBuilder sb = new StringBuilder(lastline);
@@ -127,10 +126,10 @@ public class ShowMoreTextView extends RelativeLayout {
                     index++;
                     sb.deleteCharAt(sb.length() - 1);
                     lastLineWidth = textPaint.measureText(sb.toString());
-                }while (lastLineWidth > maxLineWidh);
-                String result = mContentText.substring(0,(LastCharIndex - index))+EllString;
+                } while (lastLineWidth > maxLineWidh);
+                String result = mContentText.substring(0, (LastCharIndex - index)) + EllString;
                 mContent.setText(result);
-            }else{
+            } else {
                 String result = mContentText.substring(0, LastCharIndex) + EllString;
                 mContent.setText(result);
             }
@@ -228,25 +227,20 @@ public class ShowMoreTextView extends RelativeLayout {
     };
 
     /**
-     * 判断TextView最后一行剩余的空缺
-     * 是否满三个字符.
-     *
-     * @return true 不满三个字符, false 超过三个字符
+     * 仅用于判断“收回”按钮是否要单独起一行
      */
     private boolean isNeedNewLine() {
-        if (mContent == null || mContent.getLayout().getLineCount() < 1) {
+
+        if (TextUtils.isEmpty(mContentText)) {
             return true;
         }
-        Layout layout = mContent.getLayout();
-        int lineCount = layout.getLineCount();
-        int FirstLineCount = layout.getLineEnd(0) - layout.getLineStart(0);
-        int LastLineCount = layout.getLineEnd(lineCount - 1) - layout.getLineStart(lineCount - 1);
-        if (FirstLineCount - LastLineCount > 3) {
-            return false;
-        }
 
-        return true;
+        int startIndex = mContent.getLayout().getLineStart(mContent.getLineCount() - 1);
+        String lastLine = mContentText.substring(startIndex);
+        float totalWidth = mContent.getWidth();
+        float lastlineWidth = textPaint.measureText(lastLine);
+        float maxWidth = totalWidth - LengthShowLess - LengthEll;
+        return lastlineWidth > maxWidth;
     }
-
 
 }
