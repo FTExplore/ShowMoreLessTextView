@@ -96,25 +96,19 @@ public class ShowMoreTextView extends RelativeLayout {
     private Runnable mShrinkRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mContent.getLayout().getLineCount() == 0) {
-                mBtnShowMore.setVisibility(GONE);
-                return;
-            }
-            int FirstLineCount = mContent.getLayout().getLineEnd(0) - mContent.getLayout().getLineStart(0);
-            if (mContentText.length() > FirstLineCount) {
+
+            if (mContent.getLayout().getLineCount() > MaxLine) {
                 mBtnShowMore.setVisibility(VISIBLE);
             } else {
                 mBtnShowMore.setVisibility(GONE);
             }
 
-            // 考虑到MaxLine 不等于1 的情况，即当默认显示行数不是一行的时候，最后一行要留出一部分空间
-            if (MaxLine != 1 && !TextUtils.isEmpty(mContentText) ) {
 
-                int LastCharIndex = mContent.getLayout().getLineEnd(mContent.getLineCount() - 1);
-                String shrinkTxt = mContentText.substring(0, LastCharIndex);
-                String result = shrinkTxt.substring(0, calLastIndex(shrinkTxt));
-                mContent.setText(result + "...");
-            }
+            int LastCharIndex = mContent.getLayout().getLineEnd(mContent.getLineCount() - 1);
+            String shrinkTxt = mContentText.substring(0, LastCharIndex);
+            String result = shrinkTxt.substring(0, calLastIndex(shrinkTxt));
+            mContent.setText(result + "...");
+            
         }
     };
 
