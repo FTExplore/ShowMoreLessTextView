@@ -86,6 +86,7 @@ public class ShowMoreTextView extends RelativeLayout {
 
     public void setText(String text) {
         this.mContentText = text;
+        mBtnShowLess.setVisibility(GONE);
         mContent.setText(mContentText);
         mContent.post(mShrinkRunnable);
     }
@@ -103,12 +104,25 @@ public class ShowMoreTextView extends RelativeLayout {
                 mBtnShowMore.setVisibility(GONE);
             }
 
+            if (TextUtils.isEmpty(mContentText)){
+                mBtnShowMore.setVisibility(GONE);
+            }
 
+
+            int firstCharIndex = mContent.getLayout().getLineStart(mContent.getLineCount() - 1);
             int LastCharIndex = mContent.getLayout().getLineEnd(mContent.getLineCount() - 1);
-            String shrinkTxt = mContentText.substring(0, LastCharIndex);
-            String result = shrinkTxt.substring(0, calLastIndex(shrinkTxt));
-            mContent.setText(result + "...");
-            
+            String lastline = mContentText.substring(firstCharIndex,LastCharIndex);
+
+            float totalWidth = mContent.getWidth();
+            float lastLineWidth = textPaint.measureText(lastline);
+
+            if (lastLineWidth > totalWidth - LengthEll - LengthShowMore){
+                // 最后一行需要裁剪
+            }else{
+                String shrinkTxt = mContentText.substring(0, LastCharIndex);
+                String result = shrinkTxt.substring(0, calLastIndex(shrinkTxt)) + EllString;
+                mContent.setText(result);
+            }
         }
     };
 
