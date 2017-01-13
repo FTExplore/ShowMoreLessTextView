@@ -102,25 +102,36 @@ public class ShowMoreTextView extends RelativeLayout {
                 mBtnShowMore.setVisibility(VISIBLE);
             } else {
                 mBtnShowMore.setVisibility(GONE);
+                return;
             }
 
             if (TextUtils.isEmpty(mContentText)){
                 mBtnShowMore.setVisibility(GONE);
+                return;
             }
 
 
-            int firstCharIndex = mContent.getLayout().getLineStart(mContent.getLineCount() - 1);
-            int LastCharIndex = mContent.getLayout().getLineEnd(mContent.getLineCount() - 1);
+            int firstCharIndex = mContent.getLayout().getLineStart(MaxLine - 1);
+            int LastCharIndex = mContent.getLayout().getLineEnd(MaxLine - 1);
             String lastline = mContentText.substring(firstCharIndex,LastCharIndex);
 
             float totalWidth = mContent.getWidth();
             float lastLineWidth = textPaint.measureText(lastline);
+            float maxLineWidh = totalWidth - LengthEll - LengthShowMore;
 
-            if (lastLineWidth > totalWidth - LengthEll - LengthShowMore){
+            if (lastLineWidth > maxLineWidh){
                 // 最后一行需要裁剪
+                int index = 0;
+                StringBuilder sb = new StringBuilder(lastline);
+                do {
+                    index++;
+                    sb.deleteCharAt(sb.length() - 1);
+                    lastLineWidth = textPaint.measureText(sb.toString());
+                }while (lastLineWidth > maxLineWidh);
+                String result = mContentText.substring(0,(LastCharIndex - index))+EllString;
+                mContent.setText(result);
             }else{
-                String shrinkTxt = mContentText.substring(0, LastCharIndex);
-                String result = shrinkTxt.substring(0, calLastIndex(shrinkTxt)) + EllString;
+                String result = mContentText.substring(0, LastCharIndex) + EllString;
                 mContent.setText(result);
             }
         }
@@ -154,7 +165,6 @@ public class ShowMoreTextView extends RelativeLayout {
         mContent.setLayoutParams(params);
         lineSpace = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, context.getResources().getDisplayMetrics());
         mContent.setLineSpacing(lineSpace, 1.0f);
-        mContent.setMaxLines(MaxLine);
         mContent.setEllipsize(TextUtils.TruncateAt.END);
         mContent.setId(R.id.ShowMoreContent);
     }
@@ -192,7 +202,6 @@ public class ShowMoreTextView extends RelativeLayout {
     private OnClickListener mShorMore = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            mContent.setMaxLines(Integer.MAX_VALUE);
             mContent.post(new Runnable() {
                 @Override
                 public void run() {
@@ -212,7 +221,6 @@ public class ShowMoreTextView extends RelativeLayout {
     private OnClickListener mShowLess = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            mContent.setMaxLines(MaxLine);
             mContent.post(mShrinkRunnable);
             mBtnShowLess.setVisibility(GONE);
             mBtnShowMore.setVisibility(VISIBLE);
