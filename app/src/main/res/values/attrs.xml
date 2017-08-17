@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ShowMoreTextView">
+        <attr name="TextSize" format="dimension"/>
         <attr name="TextColor" format="color"/>
         <attr name="ShrinkMaxLine" format="integer"/>
+        <attr name="MoreBtnBackground" format="color"/>
     </declare-styleable>
 </resources>

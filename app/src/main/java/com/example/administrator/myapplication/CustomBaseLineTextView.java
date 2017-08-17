@@ -10,6 +10,17 @@ import android.widget.TextView;
  */
 
 public class CustomBaseLineTextView extends TextView {
+    private int baseLine;
+
+    public void setBaseLine(int baseLine) {
+        this.baseLine = baseLine;
+    }
+    private boolean insurance = false;
+
+    public void setInsurance(boolean insurance) {
+        this.insurance = insurance;
+    }
+
     public CustomBaseLineTextView(Context context) {
         super(context);
     }
@@ -28,8 +39,14 @@ public class CustomBaseLineTextView extends TextView {
         if (layout == null) {
             return super.getBaseline();
         }
-        int baselineOffset = super.getBaseline() - layout.getLineBaseline(0);
-        return baselineOffset + layout.getLineBaseline(layout.getLineCount() - 1);
+
+        if (insurance){
+            return layout.getLineBaseline(layout.getLineCount() -1 );
+        }
+
+//        int baselineOffset = super.getBaseline() - layout.getLineBaseline(0);
+//        return baselineOffset + layout.getLineBaseline(layout.getLineCount() - 1);
+        return layout.getLineBaseline(baseLine>=layout.getLineCount()?layout.getLineCount()-1:baseLine);
     }
 
     public int getOneBaseLine() {
